@@ -4,6 +4,28 @@ from keras.layers import Input, Dense
 import numpy as np
 import csv
 
+verbose = False
+
+
+def set_verbose(x):
+	"""
+	Sets the verbose bool to a new variable x
+	:param x: the new print_progress value
+	:return: Null
+	"""
+	global verbose
+	verbose = x
+
+
+def maybe_print(s):
+	"""
+	Turns off printing of checkpoints if verbose is false
+	:param s: what to print
+	:return: None
+	"""
+	if verbose:
+		print(s)
+
 
 def read_data(file):
 	"""
@@ -74,8 +96,8 @@ def normalize_array(training_data):
 	return training_data, maximum, minimum
 
 
-def prepare_data(X_train_dir='dnnData/X_train.csv', y_train_dir='dnnData/y_train.csv',
-                 X_test_dir='dnnData/X_test.csv', validation_size=100):
+def prepare_data(X_train_dir='data_files/X_train.csv', y_train_dir='data_files/y_train.csv',
+                 X_test_dir='data_files/X_test.csv', validation_size=100):
 	"""
 	Converts csv files into arrays structured and ready for use in the auto encoder
 	@author Lasse Falch Sortland
@@ -87,26 +109,26 @@ def prepare_data(X_train_dir='dnnData/X_train.csv', y_train_dir='dnnData/y_train
 			 y_train_maximum, y_train_minimum, X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum
 			 which are can be used to denormalize the arrays again
 	"""
-	print("reading data")
+	maybe_print("reading data")
 	X_header, X_train = read_data(X_train_dir)
 	y_header, y_train = read_data(y_train_dir)
 	test_header, X_test = read_data(X_test_dir)
 
-	print("converting array to np.array")
+	maybe_print("converting array to np.array")
 	X_train = np.asarray(X_train)
 	y_train = np.asarray(y_train)
 	X_test = np.asarray(X_test)
 
-	print("Normalize arrays")
+	maybe_print("Normalize arrays")
 	# Scales the training and test data to range between 0 and 1.
 	y_train, y_train_maximum, y_train_minimum = normalize_array(y_train)
-	print("\ty_train done")
+	maybe_print("\ty_train done")
 	X_train, X_train_maximum, X_train_minimum = normalize_array(X_train)
-	print("\tX_train done")
+	maybe_print("\tX_train done")
 	X_test, X_test_maximum, X_test_minimum = normalize_array(X_test)
-	print("\tX_test done")
+	maybe_print("\tX_test done")
 
-	print("reshape arrays")
+	maybe_print("reshape arrays")
 	# reshape the arrays
 	X_train = X_train.reshape((len(X_train), np.prod(X_train.shape[1:])))
 	y_train = y_train.reshape((len(y_train), np.prod(y_train.shape[1:])))
@@ -166,7 +188,7 @@ def auto_encode(X_train, X_test, X_val, y_train, y_val, layer1=4, encoding_dim=3
 	np.random.seed(1)
 	input_dim = X_train.shape[1]
 
-	print("creating auto encoder")
+	maybe_print("creating auto encoder")
 	autoencoder = Sequential()
 
 	# Encoder Layers
@@ -179,34 +201,27 @@ def auto_encode(X_train, X_test, X_val, y_train, y_val, layer1=4, encoding_dim=3
 	autoencoder.add(Dense(layer1 * encoding_dim, activation=activation_in_decoder_layer_2))
 	autoencoder.add(Dense(input_dim, activation=activation_in_decoder_layer_3))
 
-	print(autoencoder.summary())
+	if verbose:
+		autoencoder.summary()
 
-	_input = Input(shape=(input_dim,))
-	encoder_layer1 = autoencoder.layers[0]
-	encoder_layer2 = autoencoder.layers[1]
-	encoder_layer3 = autoencoder.layers[2]
-	encoder = Model(_input, encoder_layer3(encoder_layer2(encoder_layer1(_input))))
-
-	print(encoder.summary())
-
-	print("training...")
+	maybe_print("training...")
 	autoencoder.compile(optimizer=optimizer, loss=loss)
 	autoencoder.fit(X_train, y_train,
 	                epochs=epochs,
-	                batch_size=batch_size)
-	print("done")
+	                batch_size=batch_size, verbose=verbose)
+	maybe_print("done")
 
-	print("predicting test data")
-	test_predictions = autoencoder.predict(X_test)
-	print("done")
+	maybe_print("predicting test data")
+	test_predictions = autoencoder.predict(X_test, verbose=verbose)
+	maybe_print("done")
 
-	print("evaluating based on validation: ")
-	validation_evaluation = autoencoder.evaluate(x=X_val, y=y_val)
+	maybe_print("evaluating based on validation: ")
+	validation_evaluation = autoencoder.evaluate(x=X_val, y=y_val, verbose=verbose)
 	validation_prediction = autoencoder.predict(X_val)
 	validation_true = y_val
-	print(validation_evaluation)
+	maybe_print(validation_evaluation)
 
-	print("end")
+	maybe_print("end")
 	return validation_evaluation, validation_prediction, validation_true, test_predictions
 
 
