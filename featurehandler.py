@@ -4,12 +4,28 @@ from datetime import date
 
 
 def read_data(file_name):
+    """
+    Reads data from a .csv file and loads it into a pandas data frame
+    @author Ioana-Adina Panoschi
+    :param file_name: the name of the file
+    :return: the newly created data frame
+    """
     data_frame = pd.read_csv(file_name, low_memory=False)
 
     return data_frame
 
 
 def split_column(df, column_name, values, number_of_new_columns):
+    """
+    Given a data frame, a column name and a list of the unique values in said column, the function splits the column
+    in as many one-hot columns as the number of unique variables
+    @autohor: Ioana-Adina Panoschi
+    :param df: the data frame
+    :param column_name: the name of the column that will be split
+    :param values: the list of unique values of the column
+    :param number_of_new_columns: the number of unique variables
+    :return: lists containing the replacing columns
+    """
     column_a = list()
     column_b = list()
     column_c = list()
@@ -39,11 +55,18 @@ def split_column(df, column_name, values, number_of_new_columns):
 
     if number_of_new_columns == 3:
         return column_a, column_b, column_c
+
     return column_a, column_b, column_c, column_d
 
 
-def convert_date_to_int(string):
-    split_date = str(string).split('-')
+def convert_date_to_int(date_string):
+    """
+    Algorithm that thansofrms a date in the form of string into an integer
+    @author: Ioana-Adina Panoschi
+    :param date_string: date in the form of string
+    :return: the transformed date, representing the number of days since a predefined start date (in this case 01/01/1900)
+    """
+    split_date = str(date_string).split('-')
 
     first_date = date(1900, 1, 1)
     date_to_convert = date(int(split_date[0]), int(split_date[1]), int(split_date[2]))
@@ -54,6 +77,12 @@ def convert_date_to_int(string):
 
 
 def handle_date_format(date_column):
+    """
+    For each date value found in a given date column, send the string form of the date to the function convert_date_to_int()
+    @author: Ioana-Adina Panoschi
+    :param date_column: the column containing date values
+    :return: returns a list of the converted date values
+    """
     new_date = list()
 
     for line_data in date_column:
@@ -63,6 +92,12 @@ def handle_date_format(date_column):
 
 
 def create_empty_column(row_count):
+    """
+    Creates an empty list (to be column) containing only values of 0; used for creating empty columns for test files
+    @author: Ioana-Adina Panoschi
+    :param row_count: the number of rows that the column should have
+    :return: the list containing only values of 0
+    """
     empty_column = list()
 
     for rows in range(row_count):
@@ -72,8 +107,20 @@ def create_empty_column(row_count):
 
 
 def handle_data(data_frame, isX):
-    values = ["a", "b", "c", "0"]
-    public_holiday, easter, christmas, no_holiday = split_column(data_frame, "StateHoliday", values, number_of_new_columns=4)
+    """
+    Handles data from train.csv and test.csv files;
+    First, it splits the column StateHolidays into 4 equivalen one-hot encoded columns
+    Secondly, it converts date objects into integers
+    Afterwards, if the received data frame is for creating X/test files, it creates empty columns
+    Lastly, it creates a new data frame containing the modified columns
+    @author: Ioana-Adina Panoschi
+    :param data_frame: the data frame
+    :param isX: constant value containing 1 or 0; 1 -> the data frame is used for creating an X file, 0 -> the data frame
+                is used for creating an y file
+    :return: the updated data frame
+    """
+    state_holidays = ["a", "b", "c", "0"]
+    public_holiday, easter, christmas, no_holiday = split_column(data_frame, "StateHoliday", state_holidays, number_of_new_columns=4)
 
     new_date = handle_date_format(data_frame["Date"])
 
@@ -96,6 +143,14 @@ def handle_data(data_frame, isX):
 
 
 def modify_store_data(store_data_frame):
+    """
+    Handles data from store.csv
+    Splits the columns StoreType, Assortment and PromoInterval into one-hot encoded columns
+    Creates new data frame containing the new columns
+    @author: Ioana-Adina Panoschi
+    :param store_data_frame: data frame containing the data from store.csv
+    :return: modified data frame
+    """
     store_types = ["a", "b", "c", "d"]
     type_a, type_b, type_c, type_d = split_column(store_data_frame, "StoreType", store_types, number_of_new_columns=4)
 
@@ -121,6 +176,13 @@ def modify_store_data(store_data_frame):
 
 
 def append_store_data(t_data_frame, store_data_frame):
+    """
+    Function that appends the modified data collected from store.csv to a given data frame
+    @author: Ioana-Adina Panoschi
+    :param t_data_frame: data frame that the algorithm appends to
+    :param store_data_frame: data frame containing data form store.csv
+    :return: new data fram with the columns form store_data_frame appended to the t_data_frame
+    """
     type_a = list(); type_b = list(); type_c = list(); type_d = list()
     assortment_a = list(); assortment_b = list(); assortment_c = list()
     competition_distance = list(); competition_open_month = list(); competition_open_year = list()
@@ -129,23 +191,24 @@ def append_store_data(t_data_frame, store_data_frame):
 
     for data in store_data_frame["Store"]:
         index_list = numpy.where(t_data_frame["Store"] == data)
+        index_in_df = numpy.where(store_data_frame["Store"] == data)
         for index in list(index_list[0]):
-            type_a.insert(index, store_data_frame["StoreTypeA"][index_list[0][0]])
-            type_b.insert(index, store_data_frame["StoreTypeB"][index_list[0][0]])
-            type_c.insert(index, store_data_frame["StoreTypeC"][index_list[0][0]])
-            type_d.insert(index, store_data_frame["StoreTypeD"][index_list[0][0]])
-            assortment_a.insert(index, store_data_frame["BasicAssortment"][index_list[0][0]])
-            assortment_b.insert(index, store_data_frame["ExtraAssortment"][index_list[0][0]])
-            assortment_c.insert(index, store_data_frame["ExtendedAssortment"][index_list[0][0]])
-            competition_distance.insert(index, store_data_frame["CompetitionDistance"][index_list[0][0]])
-            competition_open_month.insert(index, store_data_frame["CompetitionOpenSinceMonth"][index_list[0][0]])
-            competition_open_year.insert(index, store_data_frame["CompetitionOpenSinceYear"][index_list[0][0]])
-            promo2.insert(index, store_data_frame["Promo2"][index_list[0][0]])
-            promo2_since_week.insert(index, store_data_frame["Promo2SinceWeek"][index_list[0][0]])
-            promo2_since_year.insert(index, store_data_frame["Promo2SinceYear"][index_list[0][0]])
-            jan_apr_jul_oct.insert(index, store_data_frame["PIJanAprJulOct"][index_list[0][0]])
-            feb_may_aug_nov.insert(index, store_data_frame["PIFebMayAugNov"][index_list[0][0]])
-            mar_jun_sept_dec.insert(index, store_data_frame["PIMarJunSeptDec"][index_list[0][0]])
+            type_a.insert(index, store_data_frame["StoreTypeA"][index_in_df[0][0]])
+            type_b.insert(index, store_data_frame["StoreTypeB"][index_in_df[0][0]])
+            type_c.insert(index, store_data_frame["StoreTypeC"][index_in_df[0][0]])
+            type_d.insert(index, store_data_frame["StoreTypeD"][index_in_df[0][0]])
+            assortment_a.insert(index, store_data_frame["BasicAssortment"][index_in_df[0][0]])
+            assortment_b.insert(index, store_data_frame["ExtraAssortment"][index_in_df[0][0]])
+            assortment_c.insert(index, store_data_frame["ExtendedAssortment"][index_in_df[0][0]])
+            competition_distance.insert(index, store_data_frame["CompetitionDistance"][index_in_df[0][0]])
+            competition_open_month.insert(index, store_data_frame["CompetitionOpenSinceMonth"][index_in_df[0][0]])
+            competition_open_year.insert(index, store_data_frame["CompetitionOpenSinceYear"][index_in_df[0][0]])
+            promo2.insert(index, store_data_frame["Promo2"][index_in_df[0][0]])
+            promo2_since_week.insert(index, store_data_frame["Promo2SinceWeek"][index_in_df[0][0]])
+            promo2_since_year.insert(index, store_data_frame["Promo2SinceYear"][index_in_df[0][0]])
+            jan_apr_jul_oct.insert(index, store_data_frame["PIJanAprJulOct"][index_in_df[0][0]])
+            feb_may_aug_nov.insert(index, store_data_frame["PIFebMayAugNov"][index_in_df[0][0]])
+            mar_jun_sept_dec.insert(index, store_data_frame["PIMarJunSeptDec"][index_in_df[0][0]])
 
     raw_data = {'StoreTypeA': type_a, 'StoreTypeB': type_b, 'StoreTypeC': type_c, 'StoreTypeD': type_d,
                 'BasicAssortment': assortment_a, 'ExtraAssortment': assortment_b, 'ExtendedAssortment': assortment_c,
@@ -165,13 +228,18 @@ def append_store_data(t_data_frame, store_data_frame):
 
 
 def save_data_to_csv(data_frame, file_name):
+    """
+    Function that saves the data from a given data frame to a file with a given file
+    @author: Ioana-Adina Panoschi
+    :param data_frame: data frame that will be saved to a file
+    :param file_name: name of the file 
+    :return: no return
+    """
     data_frame.to_csv(file_name, index=False, index_label=False)
 
 
 def main():
     train_data_frame = read_data("train.csv")
-    print(train_data_frame.head())
-    print(train_data_frame["Store"])
     test_data_frame = read_data("test.csv")
     store_data_frame = read_data("store.csv")
 
