@@ -106,16 +106,16 @@ def modify_store_data(store_data_frame):
     jan_apr_jul_oct, feb_may_aug_nov, mar_jun_sept_dec, no = split_column(store_data_frame, "PromoInterval", promo_intervals, number_of_new_columns=4)
 
     raw_data = {'Store': store_data_frame["Store"],'StoreTypeA': type_a, 'StoreTypeB': type_b, 'StoreTypeC': type_c, 'StoreTypeD': type_d,
-           'BasicAssortment': assortment_a, 'ExtraAssortment': assortment_b, 'ExtendedAssortment': assortment_c,
-           'CompetitionDistance': store_data_frame["CompetitionDistance"], 'CompetitionOpenSinceMonth': store_data_frame["CompetitionOpenSinceMonth"],
-           'CompetitionOpenSinceYear': store_data_frame["CompetitionOpenSinceYear"], 'Promo2': store_data_frame["Promo2"],
-           'Promo2SinceWeek': store_data_frame["Promo2SinceWeek"], 'Promo2SinceYear': store_data_frame["Promo2SinceYear"],
-           'PIJanAprJulOct': jan_apr_jul_oct, 'PIFebMayAugNov': feb_may_aug_nov, 'PIMarJunSeptDec': mar_jun_sept_dec}
+                'BasicAssortment': assortment_a, 'ExtraAssortment': assortment_b, 'ExtendedAssortment': assortment_c,
+                'CompetitionDistance': store_data_frame["CompetitionDistance"], 'CompetitionOpenSinceMonth': store_data_frame["CompetitionOpenSinceMonth"],
+                'CompetitionOpenSinceYear': store_data_frame["CompetitionOpenSinceYear"], 'Promo2': store_data_frame["Promo2"],
+                'Promo2SinceWeek': store_data_frame["Promo2SinceWeek"], 'Promo2SinceYear': store_data_frame["Promo2SinceYear"],
+                'PIJanAprJulOct': jan_apr_jul_oct, 'PIFebMayAugNov': feb_may_aug_nov, 'PIMarJunSeptDec': mar_jun_sept_dec}
 
     modified_data_frame = pd.DataFrame(raw_data, columns=['Store', 'StoreTypeA', 'StoreTypeB', 'StoreTypeC', 'StoreTypeD', 'BasicAssortment',
-                                    'ExtraAssortment', 'ExtendedAssortment', 'CompetitionDistance',
-                                    'CompetitionOpenSinceMonth', 'CompetitionOpenSinceYear', 'Promo2', 'Promo2SinceWeek',
-                                    'Promo2SinceYear', 'PIJanAprJulOct', 'PIFebMayAugNov', 'PIMarJunSeptDec'])
+                                                          'ExtraAssortment', 'ExtendedAssortment', 'CompetitionDistance',
+                                                          'CompetitionOpenSinceMonth', 'CompetitionOpenSinceYear', 'Promo2', 'Promo2SinceWeek',
+                                                          'Promo2SinceYear', 'PIJanAprJulOct', 'PIFebMayAugNov', 'PIMarJunSeptDec'])
 
     return modified_data_frame
 
@@ -151,7 +151,7 @@ def append_store_data(t_data_frame, store_data_frame):
                 'BasicAssortment': assortment_a, 'ExtraAssortment': assortment_b, 'ExtendedAssortment': assortment_c,
                 'CompetitionDistance': competition_distance, 'CompetitionOpenSinceMonth': competition_open_month,
                 'CompetitionOpenSinceYear': competition_open_year, 'Promo2': promo2, 'Promo2SinceWeek': promo2_since_week,
-                'Promo2SinceYear': promo2_since_year, 'PIJanAprJulOct': jan_apr_jul_oct, 'PIFeb,May,Aug,Nov': feb_may_aug_nov,
+                'Promo2SinceYear': promo2_since_year, 'PIJanAprJulOct': jan_apr_jul_oct, 'PIFebMayAugNov': feb_may_aug_nov,
                 'PIMarJunSeptDec': mar_jun_sept_dec}
 
     modified_data_frame = pd.DataFrame(raw_data, columns=['StoreTypeA', 'StoreTypeB', 'StoreTypeC', 'StoreTypeD',
