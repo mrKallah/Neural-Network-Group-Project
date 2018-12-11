@@ -112,6 +112,7 @@ def main():
 	@author: Lasse Falch Sortland
 	:return: None
 	"""
+	#DEPRECATED DUE TO MOVING FUNCTIONS
 	X_train, X_test, X_val, y_train, y_val, y_train_maximum, y_train_minimum, \
 		X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum = prepare_data()
 	auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=1)

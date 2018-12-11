@@ -1,5 +1,6 @@
 import autoencoder
 from output import outputs
+from baseline import getbaseline
 
 import math
 import sys
@@ -242,6 +243,10 @@ def main():
         get_output_files(validation_prediction, validation_true, test_predictions)
         val_pred = validation_prediction[:, 3]
         val_true = validation_true[:, 3]
+        outputs(val_pred, val_true)
+
+        base_val_pred = getbaseline(y_val, X_val)
+        val_pred = base_val_pred[:, 3]
         outputs(val_pred, val_true)
 
 
