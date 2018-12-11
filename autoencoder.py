@@ -3,7 +3,7 @@ from keras.layers import Input, Dense
 
 import numpy as np
 
-verbose = False
+verbose = True
 
 
 def set_verbose(x):

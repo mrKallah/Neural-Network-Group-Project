@@ -239,9 +239,9 @@ def save_data_to_csv(data_frame, file_name):
 
 
 def main():
-    train_data_frame = read_data("train.csv")
-    test_data_frame = read_data("test.csv")
-    store_data_frame = read_data("store.csv")
+    train_data_frame = read_data("original/train.csv")
+    test_data_frame = read_data("original/test.csv")
+    store_data_frame = read_data("original/store.csv")
 
     store_data_frame = store_data_frame.replace(numpy.nan, "0")
 
