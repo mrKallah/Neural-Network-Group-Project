@@ -80,7 +80,8 @@ def main():
 	print("Best layer 2 size: " + str(layer2))
 	print("Best encoding size: " + str(encoding_dim))
 	print("Validation error: " + str(validation_evaluation))
-	get_output()
+	get_output(validation_prediction, validation_true, test_predictions)
+	print("Files exported")
 
 if __name__ == '__main__':
 	main()
