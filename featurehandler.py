@@ -244,7 +244,7 @@ def main():
     store_data_frame = read_data("original/store.csv")
 
     train_data_frame = train_data_frame.replace(numpy.nan, "0")
-    test_data_frame = test_data_frame(numpy.nan, "0")
+    test_data_frame = test_data_frame.replace(numpy.nan, "0")
     store_data_frame = store_data_frame.replace(numpy.nan, "0")
 
     modified_store_data_frame = modify_store_data(store_data_frame)
