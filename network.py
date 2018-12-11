@@ -2,6 +2,8 @@ import autoencoder
 import math
 import sys
 
+import pandas as pd
+
 def find_best_params(X_train, X_test, X_val, y_train, y_val):
 	"""
     Finds best parameters for the autoencoder, which include layer 1, layer 2, and encoding dimension
@@ -53,14 +55,32 @@ def find_best_params(X_train, X_test, X_val, y_train, y_val):
 	return layer1, layer2, encoding_dim, 32, best_validation_evaluation, \
 		   best_validation_prediction, best_validation_true, best_test_predictions
 
+def get_output(validation_prediction, validation_true, test_prediction):
+	validation_prediction_output = [[features[0], features[3]] for features in validation_prediction]
+	validation_true_output = [[features[0], features[3]] for features in validation_true]
+	test_prediction_output = [[features[0], features[3]] for features in test_prediction]
+
+	header = ["id", "sales"]
+	validation_prediction_dataframe = pd.DataFrame(validation_prediction_output, columns=header).groupby(["id"]).sum()
+	validation_true_dataframe = pd.DataFrame(validation_true_output, columns=header).groupby(["id"]).sum()
+	test_prediction_dataframe = pd.DataFrame(test_prediction_output, columns=header).groupby(["id"]).sum()
+
+	validation_prediction_dataframe.to_csv("validation_prediction.csv")
+	validation_true_dataframe.to_csv("validation_true.csv")
+	test_prediction_dataframe.to_csv("test_output.csv")
+
 def main():
-    X_train, X_test, X_val, y_train, y_val, y_train_maximum, y_train_minimum, \
+	X_train, X_test, X_val, y_train, y_val, y_train_maximum, y_train_minimum, \
     X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum = autoencoder.prepare_data()
 
-    layer1, encoding_dim, layer2, batch_size, validation_evaluation, \
-	vailidation_prediction, validation_true, test_predictions = find_best_params(X_train, X_test, X_val, y_train, y_val)
+	layer1, encoding_dim, layer2, batch_size, validation_evaluation, \
+	validation_prediction, validation_true, test_predictions = find_best_params(X_train, X_test, X_val, y_train, y_val)
 
-
+	print("Best layer 1 size: " + str(layer1))
+	print("Best layer 2 size: " + str(layer2))
+	print("Best encoding size: " + str(encoding_dim))
+	print("Validation error: " + str(validation_evaluation))
+	get_output()
 
 if __name__ == '__main__':
 	main()
