@@ -239,10 +239,12 @@ def save_data_to_csv(data_frame, file_name):
 
 
 def main():
-    train_data_frame = read_data("train.csv")
-    test_data_frame = read_data("test.csv")
-    store_data_frame = read_data("store.csv")
+    train_data_frame = read_data("original/train.csv")
+    test_data_frame = read_data("original/test.csv")
+    store_data_frame = read_data("original/store.csv")
 
+    train_data_frame = train_data_frame.replace(numpy.nan, "0")
+    test_data_frame = test_data_frame(numpy.nan, "0")
     store_data_frame = store_data_frame.replace(numpy.nan, "0")
 
     modified_store_data_frame = modify_store_data(store_data_frame)
@@ -255,9 +257,9 @@ def main():
     appended_x_train = append_store_data(X_train_data, modified_store_data_frame)
     appended_x_test = append_store_data(X_test_data, modified_store_data_frame)
 
-    save_data_to_csv(appended_y_train, "y_train.csv")
-    save_data_to_csv(appended_x_train, "X_train.csv")
-    save_data_to_csv(appended_x_test, "X_test.csv")
+    save_data_to_csv(appended_y_train, "data_files/y_train.csv")
+    save_data_to_csv(appended_x_train, "data_files/X_train.csv")
+    save_data_to_csv(appended_x_test, "data_files/X_test.csv")
 
 
 main()
