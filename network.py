@@ -1,13 +1,12 @@
 import autoencoder
+
 import math
 import sys
-
 import pandas as pd
-
 import numpy as np
 import csv
 
-verbose = False
+verbose = True
 
 
 def set_verbose(x):
@@ -200,7 +199,7 @@ def find_best_params(X_train, X_test, X_val, y_train, y_val):
 	return layer1, layer2, encoding_dim, 32, best_validation_evaluation, \
 		   best_validation_prediction, best_validation_true, best_test_predictions
 
-def get_output(validation_prediction, validation_true, test_prediction):
+def get_output_files(validation_prediction, validation_true, test_prediction):
 	validation_prediction_output = [[features[0], features[3]] for features in validation_prediction]
 	validation_true_output = [[features[0], features[3]] for features in validation_true]
 	test_prediction_output = [[features[0], features[3]] for features in test_prediction]
@@ -215,18 +214,29 @@ def get_output(validation_prediction, validation_true, test_prediction):
 	test_prediction_dataframe.to_csv("test_output.csv")
 
 def main():
+	is_find_best_params = True
 	X_train, X_test, X_val, y_train, y_val, y_train_maximum, y_train_minimum, \
     X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum = prepare_data()
 
-	layer1, encoding_dim, layer2, batch_size, validation_evaluation, \
-	validation_prediction, validation_true, test_predictions = find_best_params(X_train, X_test, X_val, y_train, y_val)
+	if(is_find_best_params):
+		layer1, encoding_dim, layer2, batch_size, validation_evaluation,validation_prediction, \
+		validation_true, test_predictions = find_best_params(X_train, X_test, X_val, y_train, y_val)
 
-	print("Best layer 1 size: " + str(layer1))
-	print("Best layer 2 size: " + str(layer2))
-	print("Best encoding size: " + str(encoding_dim))
-	print("Validation error: " + str(validation_evaluation))
-	get_output(validation_prediction, validation_true, test_predictions)
-	print("Files exported")
+		print("Best layer 1 size: " + str(layer1))
+		print("Best layer 2 size: " + str(layer2))
+		print("Best encoding size: " + str(encoding_dim))
+		print("Validation error: " + str(validation_evaluation))
+		get_output_files(validation_prediction, validation_true, test_predictions)
+		print("Files exported")
+	else:
+		layer1 = input("Layer 1 size: ")
+		layer2 = input("Layer 2 size: ")
+		encoding_dim = input("Encoding size: ")
+		validation_evaluation, validation_prediction, validation_true, test_predictions \
+			= autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=25,
+									  layer1=layer1, layer2=layer2, encoding_dim=encoding_dim,
+									  batch_size=32)
+		get_output_files(validation_prediction, validation_true, test_predictions)
 
 if __name__ == '__main__':
 	main()
