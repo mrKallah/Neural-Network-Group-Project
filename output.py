@@ -59,7 +59,7 @@ def nice_printer(difference, over, under, percentage):
 
 
 def outputs(Y_real, Y_pred):
-    percentage = 10.1  # defines the interval on the table
+    percentage = 0.2501  # defines the interval on the table
 
 
 
@@ -72,7 +72,7 @@ def outputs(Y_real, Y_pred):
     nice_printer(ratio, over, under, percentage)  # the interval error table
 
     # ERRORS
-    RMSPE = np.sqrt(sum(((Y_real - Y_pred) / Y_real) ** 2) / len(Y_real))
+    RMSPE = np.sqrt(sum(((Y_real - Y_pred) / Y_real) ** 2) * 1/len(Y_real))
     print("\n" + str("Root Mean Square Percentage Error:  ") + str(RMSPE))
 
     AvE = (sum(minus) / len(minus))

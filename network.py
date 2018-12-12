@@ -1,6 +1,7 @@
 import autoencoder
 from output import outputs
 from baseline import getbaseline
+from sklearn.utils import shuffle
 
 import math
 import sys
@@ -13,31 +14,31 @@ verbose = True
 
 def set_verbose(x):
     """
-	Sets the verbose bool to a new variable x
-	:param x: the new print_progress value
-	:return: Null
-	"""
+    Sets the verbose bool to a new variable x
+    :param x: the new print_progress value
+    :return: Null
+    """
     global verbose
     verbose = x
 
 
 def maybe_print(s):
     """
-	Turns off printing of checkpoints if verbose is false
-	:param s: what to print
-	:return: None
-	"""
+    Turns off printing of checkpoints if verbose is false
+    :param s: what to print
+    :return: None
+    """
     if verbose:
         print(s)
 
 
 def read_data(file):
     """
-	reads a csv file into a header array and a data array
-	@author: Lasse Falch Sortland
-	:param file: the filename to read
-	:return: header array of type string with the header values and data array of type float with the data values
-	"""
+    reads a csv file into a header array and a data array
+    @author: Lasse Falch Sortland
+    :param file: the filename to read
+    :return: header array of type string with the header values and data array of type float with the data values
+    """
     data = []
     header = []
     with open(file) as csv_file:
@@ -58,14 +59,14 @@ def read_data(file):
 
 def normalize(x, maximum, minimum, allow_div_by_zero=True):
     """
-	Normalizes a value x based on min and max
-	@author: Lasse Falch Sortland
-	:param x: the value to be normalized
-	:param minimum: the minimum value in the range
-	:param maximum: the maximum value in the range
-	:param allow_div_by_zero: if max is equal to min it returns 0 when true and throws error if false
-	:return: the normalized value as float
-	"""
+    Normalizes a value x based on min and max
+    @author: Lasse Falch Sortland
+    :param x: the value to be normalized
+    :param minimum: the minimum value in the range
+    :param maximum: the maximum value in the range
+    :param allow_div_by_zero: if max is equal to min it returns 0 when true and throws error if false
+    :return: the normalized value as float
+    """
     if maximum - minimum == 0:
         if allow_div_by_zero:
             return 0
@@ -77,23 +78,23 @@ def normalize(x, maximum, minimum, allow_div_by_zero=True):
 
 def denormalize(x, maximum, minimum):
     """
-	Normalizes a value x based on min and max
-	@author: Lasse Falch Sortland
-	:param x: the value to be normalized
-	:param minimum: the minimum value in the range
-	:param maximum: the maximum value in the range
-	:param allow_div_by_zero: if max is equal to min it returns 0 when true and throws error if false
-	:return: the normalized value as float
-	"""
+    Normalizes a value x based on min and max
+    @author: Lasse Falch Sortland
+    :param x: the value to be normalized
+    :param minimum: the minimum value in the range
+    :param maximum: the maximum value in the range
+    :param allow_div_by_zero: if max is equal to min it returns 0 when true and throws error if false
+    :return: the normalized value as float
+    """
     return float(x * (maximum - minimum) + minimum)
 
 def normalize_array(training_data):
     """
-	Normalizes an array based on the max and min values of each column
-	@author: Lasse Falch Sortland
-	:param training_data:
-	:return: return a normalized version of the input array and the max and min values
-	"""
+    Normalizes an array based on the max and min values of each column
+    @author: Lasse Falch Sortland
+    :param training_data:
+    :return: return a normalized version of the input array and the max and min values
+    """
     # normalize
     col = 0
     maximum = []
@@ -116,16 +117,16 @@ def normalize_array(training_data):
 def prepare_data(X_train_dir='data_files/X_train.csv', y_train_dir='data_files/y_train.csv',
                  X_test_dir='data_files/X_test.csv', validation_size=100):
     """
-	Converts csv files into arrays structured and ready for use in the auto encoder
-	@author Lasse Falch Sortland
-	:param X_train_dir: The location of the training csv file with missing data
-	:param y_train_dir: The location of the training csv file with all data
-	:param X_test_dir: The location of the test csv file
-	:param validation_size: the size of the validation, the bigger the validation the smaller the training data
-	:return: X_train, X_test, X_val, y_train, y_val as arrays of normalized values
-			 y_train_maximum, y_train_minimum, X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum
-			 which are can be used to denormalize the arrays again
-	"""
+    Converts csv files into arrays structured and ready for use in the auto encoder
+    @author Lasse Falch Sortland
+    :param X_train_dir: The location of the training csv file with missing data
+    :param y_train_dir: The location of the training csv file with all data
+    :param X_test_dir: The location of the test csv file
+    :param validation_size: the size of the validation, the bigger the validation the smaller the training data
+    :return: X_train, X_test, X_val, y_train, y_val as arrays of normalized values
+             y_train_maximum, y_train_minimum, X_train_maximum, X_train_minimum, X_test_maximum, X_test_minimum
+             which are can be used to denormalize the arrays again
+    """
     maybe_print("reading data")
     X_header, X_train = read_data(X_train_dir)
     y_header, y_train = read_data(y_train_dir)
@@ -150,7 +151,10 @@ def prepare_data(X_train_dir='data_files/X_train.csv', y_train_dir='data_files/y
     X_train = X_train.reshape((len(X_train), np.prod(X_train.shape[1:])))
     y_train = y_train.reshape((len(y_train), np.prod(y_train.shape[1:])))
     X_test = X_test.reshape((len(X_test), np.prod(X_test.shape[1:])))
-
+    
+    maybe_print("shuffle data")
+    X_train, y_train = shuffle(X_train, y_train, random_state=0)
+    
     maybe_print("create validation sets")
     # takes the last validation_size points off the training data to be used for evaluation of the algorithm
     X_val = X_train[-validation_size:]
@@ -169,18 +173,18 @@ def find_best_params(X_train, X_test, X_val, y_train, y_val):
     sizes and batch size according to their loss. Returns the optimal parameters along with the test
     results of the best model.
     :param X_train: the unlabeled training data as arr
-	:param X_test: the unlabeled testing daata as arr
-	:param X_val: the unlabeled validation data as arr
-	:param y_train: the labeled training data as arr
-	:param y_val: the labeled validation data as arr
+    :param X_test: the unlabeled testing daata as arr
+    :param X_val: the unlabeled validation data as arr
+    :param y_train: the labeled training data as arr
+    :param y_val: the labeled validation data as arr
     :return: layer1: the optimal size of layer one
-    		 layer2: the optimal size of layer two
-    		 encoding_dim: the optimal size of the encoding layer
-    		 batch_size: the best batch size for the training
-    		 validation_evaluation: the Scalar test loss of the best model
-			 validation_prediction: the predicted values for the best validation array
-			 validation_true: the actual values for the best validation array
-			 test_predictions: the predicted values for the best test array
+             layer2: the optimal size of layer two
+             encoding_dim: the optimal size of the encoding layer
+             batch_size: the best batch size for the training
+             validation_evaluation: the Scalar test loss of the best model
+             validation_prediction: the predicted values for the best validation array
+             validation_true: the actual values for the best validation array
+             test_predictions: the predicted values for the best test array
     """
     min_layer1 = 4
     max_layer1 = len(X_train)
@@ -247,7 +251,7 @@ def main():
         print("Files exported")
     else:
         validation_evaluation, validation_prediction, validation_true, test_predictions \
-            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=38)
+            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=1)
 
         i = 0
         maximum = y_train_maximum[3]
@@ -310,10 +314,16 @@ def main():
         print("###################")
         print("#### Baseline #####")
         print("###################")
-
-
+        
         outputs(base_val_pred, val_true)
 
+        print()
+        print(val_pred)
+        print()
+        print(val_true)
+        print()
+        print(base_val_pred)
+        print()
 
 
 if __name__ == '__main__':
