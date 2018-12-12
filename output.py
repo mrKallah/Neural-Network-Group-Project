@@ -3,6 +3,7 @@ import numpy as np
 import math as mt
 import sklearn.metrics as SkM
 import matplotlib.pyplot as plt
+import sys
 
 
 def percentage_diff(a, b):
@@ -10,7 +11,12 @@ def percentage_diff(a, b):
 
     for i in range(len(a)):
         if a[i] < b[i]:
-            ratio2[i] = np.abs((b[i] / a[i]) - 1)
+            # avoid div by 0
+            if a[i] == 0:
+                ratio2[i] = 100
+            else:
+                ratio2[i] = np.abs((b[i] / a[i]) - 1)
+
         else:
             ratio2[i] = (b[i] / a[i]) - 1
     return ratio2
@@ -23,7 +29,7 @@ def difference_tracker(difference, over, under, percentage):
     overestimate_tracker = np.zeros(overestimate_groups_needed)
     underestimate_tracker = np.zeros(underestimate_groups_needed)
 
-    print(difference)
+    #print(difference)
     for i in difference:
         if i < 0:
             underestimate_tracker[mt.floor(i / -percentage)] += 1
@@ -53,7 +59,7 @@ def nice_printer(difference, over, under, percentage):
 
 
 def outputs(Y_real, Y_pred):
-    percentage = 10  # defines the interval on the table
+    percentage = 10.1  # defines the interval on the table
 
 
 
@@ -90,7 +96,8 @@ def outputs(Y_real, Y_pred):
     print("r squared value:  " + str(SkM.r2_score(Y_real, Y_pred)))
 
     # PLOT
-    p1 = np.polyfit(Y_real, Y_pred, 1)
+
+    p1 = np.polyfit(Y_real, Y_pred, 0.1)
     plt.plot(Y_real, Y_pred, 'ro', markerfacecolor='blue', markersize=4)
     plt.plot(Y_real, np.polyval(p1, Y_real), label="Regression Line")
     plt.plot(Y_real, Y_real, color='red', linewidth=1, label="Real vs Real")

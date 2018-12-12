@@ -71,8 +71,21 @@ def normalize(x, maximum, minimum, allow_div_by_zero=True):
             return 0
         else:
             raise TypeError('Division by zero')
-    return float(1 - ((maximum - x) / (maximum - minimum)))
+    #return float(1 - ((maximum - x) / (maximum - minimum)))
+    return float(((x - minimum) / (maximum - minimum)))
 
+
+def denormalize(x, maximum, minimum):
+    """
+	Normalizes a value x based on min and max
+	@author: Lasse Falch Sortland
+	:param x: the value to be normalized
+	:param minimum: the minimum value in the range
+	:param maximum: the maximum value in the range
+	:param allow_div_by_zero: if max is equal to min it returns 0 when true and throws error if false
+	:return: the normalized value as float
+	"""
+    return float(x * (maximum - minimum) + minimum)
 
 def normalize_array(training_data):
     """
@@ -233,21 +246,73 @@ def main():
         get_output_files(validation_prediction, validation_true, test_predictions)
         print("Files exported")
     else:
-        layer1 = 4
-        layer2 = 2
-        encoding_dim = 32
         validation_evaluation, validation_prediction, validation_true, test_predictions \
-            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=1,
-                                      layer1=layer1, layer2=layer2, encoding_dim=encoding_dim,
-                                      batch_size=32)
-        get_output_files(validation_prediction, validation_true, test_predictions)
+            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=38)
+
+        i = 0
+        maximum = y_train_maximum[3]
+        minimum = y_train_minimum[3]
+        sales = test_predictions[:, 3]
+        tmp = np.zeros(np.asarray(sales).size)
+        id = np.zeros(np.asarray(sales).size)
+        for b in sales:
+            f = denormalize(b, maximum, minimum)
+            tmp[i] = int(denormalize(b, maximum, minimum))
+            id[i] = int(i+1)
+            i += 1
+        sales = tmp
+
+        test3 = [np.asarray(id, dtype=np.int), np.asarray(sales, dtype=np.int)]
+        test3 = np.transpose(test3)
+        test3 = np.array(test3, dtype=np.int)
+        header = ["id", "sales"]
+        test_prediction_output = test3
+        #print(test3)
+        test_prediction_dataframe = pd.DataFrame(test_prediction_output, columns=header).groupby(["id"]).sum()
+        test_prediction_dataframe.to_csv("test_output.csv")
+
+
+
+
+        # get_output_files(validation_prediction, validation_true, test)
         val_pred = validation_prediction[:, 3]
         val_true = validation_true[:, 3]
+
+
+
+        i = 0
+        maximum = y_train_maximum[2]
+        minimum = y_train_minimum[2]
+        for b in val_pred:
+            val_pred[i] = denormalize(b, maximum, minimum)
+            i += 1
+
+        i = 0
+        for b in val_true:
+            val_true[i] = denormalize(b, maximum, minimum)
+            i += 1
+
+
+
+        print("#######################")
+        print("#### Auto Encoder #####")
+        print("#######################")
         outputs(val_pred, val_true)
 
+
         base_val_pred = getbaseline(y_val, X_val)
-        val_pred = base_val_pred[:, 3]
-        outputs(val_pred, val_true)
+        #val_pred = base_val_pred[:, 3]
+
+        # i = 0
+        # for b in base_val_pred:
+        #     base_val_pred[i] = normalize(b, max(base_val_pred), min(base_val_pred))
+        #     i += 1
+        print("###################")
+        print("#### Baseline #####")
+        print("###################")
+
+
+        outputs(base_val_pred, val_true)
 
 
 

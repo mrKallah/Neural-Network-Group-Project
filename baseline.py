@@ -5,10 +5,13 @@ import pandas as pd
 import numpy as np
 
 def getbaseline(data, data1):
-    #data = pd.read_csv('y_train.csv')
-    #data1=pd.read_csv('X_train.csv')
-    a = data[['Sales']]
-    m = data1[['Sales']]
+    #data = pd.read_csv('data_files/y_train.csv')
+    #data1=pd.read_csv('data_files/X_train.csv')
+    #a = data[['Sales']]
+    #m = data1[['Sales']]
+    a = data[:,3]
+    m = data1[:,3]
+
     stu1 = np.array(a)
     #print(stu1)
     b=len(a)
