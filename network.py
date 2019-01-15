@@ -187,7 +187,7 @@ def find_best_params(X_train, X_test, X_val, y_train, y_val):
              test_predictions: the predicted values for the best test array
     """
     min_layer1 = 4
-    max_layer1 = len(X_train)
+    max_layer1 = len(X_train[0])
     min_layer2 = 2
     min_encoding = 1
 
@@ -251,7 +251,8 @@ def main():
         print("Files exported")
     else:
         validation_evaluation, validation_prediction, validation_true, test_predictions \
-            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, epochs=1)
+            = autoencoder.auto_encode(X_train, X_test, X_val, y_train, y_val, encoding_dim=7, \
+			layer1=17, layer2=8,epochs=1)
 
         i = 0
         maximum = y_train_maximum[3]
